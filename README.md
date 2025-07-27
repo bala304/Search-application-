@@ -23,5 +23,3 @@ A simple and responsive Wikipedia search web application built with HTML, CSS, a
 4. Press the Enter key to fetch and display Wikipedia articles related to your query.
 5. Click the article titles or URLs to visit the Wikipedia pages.
 
-## File Structure
-
