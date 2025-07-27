@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wikipedia Search</title>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+        rel="stylesheet" />
+
+  <style>
+    body {
+      font-family: "Roboto", sans-serif;
+      background-color: #f8f9fa;
+      padding: 20px;
+    }
+
+    .main-container {
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .wiki-search-header {
+      border: 1px solid #d5cdcd;
+      padding: 30px 20px;
+      margin-bottom: 40px;
+      background-color: #ffffff;
+      border-radius: 8px;
+    }
+
+    .wiki-logo {
+      margin-bottom: 30px;
+      width: 150px;
+    }
+
+    .search-input {
+      font-size: 18px;
+      border: 1px solid #d5cdcd;
+      border-radius: 3px;
+      padding: 10px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .search-results {
+      padding-left: 10px;
+    }
+
+    .result-item {
+      margin-bottom: 20px;
+      background-color: #ffffff;
+      padding: 15px;
+      border-left: 4px solid #006621;
+      border-radius: 5px;
+    }
+
+    .result-title {
+      font-size: 22px;
+      color: #1a0dab;
+      text-decoration: none;
+    }
+
+    .result-title:hover {
+      text-decoration: underline;
+    }
+
+    .result-url {
+      color: #006621;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .link-description {
+      color: #444;
+      font-size: 15px;
+      margin-top: 8px;
+    }
+
+    #spinner {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="main-container">
+    <div class="wiki-search-header text-center">
+      <img class="wiki-logo"
+           src="https://d2clawv67efefq.cloudfront.net/ccbp-dynamic-webapps/wiki-logo-img.png"
+           alt="Wikipedia Logo" />
+      <input id="searchInput" type="search" class="search-input mt-3"
+             placeholder="Type a keyword and press Enter to search" />
+    </div>
+
+    <div class="d-none" id="spinner">
+      <div class="d-flex justify-content-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="searchResults" class="search-results"></div>
+  </div>
+
+  <script>
+    let searchInputEl = document.getElementById("searchInput");
+    let searchResultsEl = document.getElementById("searchResults");
+    let spinnerEl = document.getElementById("spinner");
+
+    function createAndAppendSearchResult(result) {
+      let { link, title, description } = result;
+
+      let resultItemEl = document.createElement("div");
+      resultItemEl.classList.add("result-item");
+
+      let titleEl = document.createElement("a");
+      titleEl.href = link;
+      titleEl.target = "_blank";
+      titleEl.textContent = title;
+      titleEl.classList.add("result-title");
+      resultItemEl.appendChild(titleEl);
+
+      resultItemEl.appendChild(document.createElement("br"));
+
+      let urlEl = document.createElement("a");
+      urlEl.href = link;
+      urlEl.target = "_blank";
+      urlEl.textContent = link;
+      urlEl.classList.add("result-url");
+      resultItemEl.appendChild(urlEl);
+
+      resultItemEl.appendChild(document.createElement("br"));
+
+      let descriptionEl = document.createElement("p");
+      descriptionEl.textContent = description;
+      descriptionEl.classList.add("link-description");
+      resultItemEl.appendChild(descriptionEl);
+
+      searchResultsEl.appendChild(resultItemEl);
+    }
+
+    function displayResults(searchResults) {
+      spinnerEl.classList.add("d-none");
+      for (let result of searchResults) {
+        createAndAppendSearchResult(result);
+      }
+    }
+
+    function searchWikipedia(event) {
+      if (event.key === "Enter") {
+        spinnerEl.classList.remove("d-none");
+        searchResultsEl.textContent = "";
+
+        let searchInput = searchInputEl.value.trim();
+        if (searchInput === "") {
+          spinnerEl.classList.add("d-none");
+          return;
+        }
+
+        let url = "https://apis.ccbp.in/wiki-search?search=" + searchInput;
+
+        fetch(url)
+          .then(response => response.json())
+          .then(jsonData => {
+            let { search_results } = jsonData;
+            displayResults(search_results);
+          })
+          .catch(() => {
+            spinnerEl.classList.add("d-none");
+            alert("Something went wrong. Try again.");
+          });
+      }
+    }
+
+    searchInputEl.addEventListener("keydown", searchWikipedia);
+  </script>
+</body>
+</html>
